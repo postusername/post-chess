@@ -1,0 +1,118 @@
+name: Upload release
+
+on: release
+
+
+jobs:
+  ubuntu-build:
+    name: Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install packages
+        run: sudo apt-get install clang-19 make cmake
+      - name: Build
+        run: |
+          mkdir -p build/linux/release
+          cd build/linux/release
+          cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-19 -G "Unix Makefiles"
+          make
+          mkdir bin
+          mv chess-cpp bin/chess-cpp
+          mv data bin/data
+      - name: Upload build
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: ubuntu
+          path: build/linux/release/bin
+
+  macos-build:
+    name: MacOS
+    runs-on: macOS-12
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install packages
+        run: brew install clang-19 make cmake
+      - name: Build
+        run: |
+          mkdir -p build/osx/release
+          cd build/osx/release
+          cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-19 -G "Unix Makefiles"
+          make
+          mkdir bin-osx
+          mv chess-cpp bin-osx/chess-cpp
+          mv data bin-osx/data
+      - name: Upload build
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: mac
+          path: build/osx/release/bin-osx
+
+  windows-build:
+    name: Windows 10
+    runs-on: windows-2019
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install make with Chocolatey
+        uses: crazy-max/ghaction-chocolatey@v3.0.0
+        with:
+          args: install clang-19 make cmake
+      - name: Build
+        shell: bash
+        run: |
+          mkdir -p build/windows/release
+          cd build/windows/release
+          cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-19 -G Ninja
+          ninja -j 4
+          mkdir bin-win
+          mv chess-cpp bin-win/chess-cpp
+          mv data bin-win/data
+      - name: Upload build
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: windows
+          path: build/windows/release/bin-win
+
+  upload:
+    name: Upload
+    needs: [ubuntu-build, macos-build, windows-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare workspace
+        run: |
+          mkdir ubuntu
+          mkdir mac
+          mkdir windows
+      - name: Download Ubuntu artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: ubuntu
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: mac
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: windows
+      - name: Upload to Release (Ubuntu)
+        uses: JasonEtco/upload-to-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: bin application/x-executable
+      - name: Upload to Release (macOS)
+        uses: JasonEtco/upload-to-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: bin-osx application/x-executable
+      - name: Upload to Release (Windows)
+        uses: JasonEtco/upload-to-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: bin-win application/octet-stream
