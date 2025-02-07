@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install packages
-        run: brew install clang-19 make cmake libsfml-dev
+        run: brew install make cmake libsfml-dev
       - name: Build
         run: |
           mkdir -p build/osx/release
