@@ -43,7 +43,7 @@ jobs:
           bash
           export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
           export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
-          cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-19 -G "Unix Makefiles"
+          cmake ../../../ -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles"
           LDFLAGS="-L/opt/homebrew/opt/llvm/lib/c++ -L/opt/homebrew/opt/llvm/lib/unwind -lunwind" make
           mkdir bin-osx
           mv chess-cpp bin-osx/chess-cpp
