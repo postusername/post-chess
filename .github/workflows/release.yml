@@ -39,7 +39,7 @@ jobs:
         run: |
           mkdir -p build/osx/release
           cd build/osx/release
-          cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-19 -G "Unix Makefiles"
+          cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -G "Unix Makefiles"
           make
           mkdir bin-osx
           mv chess-cpp bin-osx/chess-cpp
