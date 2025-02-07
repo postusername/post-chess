@@ -39,8 +39,12 @@ jobs:
         run: |
           mkdir -p build/osx/release
           cd build/osx/release
+          echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
+          bash
+          export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+          export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
           cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-19 -G "Unix Makefiles"
-          make
+          LDFLAGS="-L/opt/homebrew/opt/llvm/lib/c++ -L/opt/homebrew/opt/llvm/lib/unwind -lunwind" make
           mkdir bin-osx
           mv chess-cpp bin-osx/chess-cpp
           mv data bin-osx/data
