@@ -132,7 +132,7 @@ void UI::start() {
                             }
                             else {
                                 this->update();
-                                Move move = AI::getBestMove(this->position, SIDE::BLACK, 8000);
+                                Move move = AI::getBestMove(this->position, SIDE::BLACK, 2500);
                                 this->position.move(move);
                                 this->positions_history.push_back(this->position);
                                 sound.setBuffer(*Storage::getPtr()->getSoundBuffer("move"));

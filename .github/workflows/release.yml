@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install packages
-        run: sudo apt-get install clang-19 make cmake
+        run: sudo apt-get install clang-19 make cmake libsfml-dev
       - name: Build
         run: |
           mkdir -p build/linux/release
@@ -22,7 +22,7 @@ jobs:
           mv chess-cpp bin/chess-cpp
           mv data bin/data
       - name: Upload build
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: ubuntu
           path: build/linux/release/bin
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install packages
-        run: brew install clang-19 make cmake
+        run: brew install clang-19 make cmake libsfml-dev
       - name: Build
         run: |
           mkdir -p build/osx/release
@@ -45,7 +45,7 @@ jobs:
           mv chess-cpp bin-osx/chess-cpp
           mv data bin-osx/data
       - name: Upload build
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: mac
           path: build/osx/release/bin-osx
@@ -59,7 +59,7 @@ jobs:
       - name: Install make with Chocolatey
         uses: crazy-max/ghaction-chocolatey@v3.0.0
         with:
-          args: install clang-19 make cmake
+          args: install clang-19 make cmake libsfml-dev
       - name: Build
         shell: bash
         run: |
@@ -71,7 +71,7 @@ jobs:
           mv chess-cpp bin-win/chess-cpp
           mv data bin-win/data
       - name: Upload build
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: windows
           path: build/windows/release/bin-win
