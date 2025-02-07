@@ -20,6 +20,7 @@
 #ifndef AI_H
 #define AI_H
 
+#include <chrono>
 #include <future>
 #include <iomanip>
 
@@ -29,6 +30,7 @@
 #include "../base/moveGeneration/LegalMoveGen.hpp"
 
 
+using namespace std::chrono_literals;
 #define nsecs std::chrono::high_resolution_clock::now().time_since_epoch().count()
 
 
