@@ -40,7 +40,7 @@ jobs:
           mkdir -p build/osx/release
           cd build/osx/release
           cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -G "Unix Makefiles"
-          gmake
+          make
           mkdir bin-osx
           mv chess-cpp bin-osx/chess-cpp
           mv data bin-osx/data
