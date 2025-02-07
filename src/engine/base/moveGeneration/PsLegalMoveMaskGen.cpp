@@ -20,20 +20,24 @@
 #include "PsLegalMoveMaskGen.hpp"
 
 
-Bitboard PsLegalMoveMaskGen::generatePawnsDefaultMask(Pieces pieces, uint8_t side) {
+Bitboard PsLegalMoveMaskGen::generatePawnsDefaultMask(const Pieces &pieces, uint8_t side) {
     if (side == SIDE::WHITE) {
         return (pieces.getPieceBitboard(SIDE::WHITE, PIECE::PAWN) << 8) & pieces.getEmptyBitboard();
     }
     return (pieces.getPieceBitboard(SIDE::BLACK, PIECE::PAWN) >> 8) & pieces.getEmptyBitboard();
 }
-Bitboard PsLegalMoveMaskGen::generatePawnsLongMask(Pieces pieces, uint8_t side) {
+
+
+Bitboard PsLegalMoveMaskGen::generatePawnsLongMask(const Pieces &pieces, uint8_t side) {
     Bitboard defaultMask = generatePawnsDefaultMask(pieces, side);
     if (side == SIDE::WHITE) {
         return ((defaultMask & BRows::ROWS[2]) << 8) & pieces.getEmptyBitboard();
     }
     return ((defaultMask & BRows::ROWS[5]) >> 8) & pieces.getEmptyBitboard();
 }
-Bitboard PsLegalMoveMaskGen::generatePawnsLeftCapturesMask(Pieces pieces, uint8_t side, bool includeAllAttacks) {
+
+
+Bitboard PsLegalMoveMaskGen::generatePawnsLeftCapturesMask(const Pieces &pieces, uint8_t side, bool includeAllAttacks) {
     if (side == SIDE::WHITE) {
         Bitboard mask = (pieces.getPieceBitboard(SIDE::WHITE, PIECE::PAWN) << 7) & BColumns::INV_COLUMNS[7];
         if (!includeAllAttacks) {
@@ -48,7 +52,9 @@ Bitboard PsLegalMoveMaskGen::generatePawnsLeftCapturesMask(Pieces pieces, uint8_
     }
     return mask;
 }
-Bitboard PsLegalMoveMaskGen::generatePawnsRightCapturesMask(Pieces pieces, uint8_t side, bool includeAllAttacks) {
+
+
+Bitboard PsLegalMoveMaskGen::generatePawnsRightCapturesMask(const Pieces &pieces, uint8_t side, bool includeAllAttacks) {
     if (side == SIDE::WHITE) {
         Bitboard mask = (pieces.getPieceBitboard(SIDE::WHITE, PIECE::PAWN) << 9) & BColumns::INV_COLUMNS[0];
         if (!includeAllAttacks) {
@@ -63,13 +69,17 @@ Bitboard PsLegalMoveMaskGen::generatePawnsRightCapturesMask(Pieces pieces, uint8
     }
     return mask;
 }
-Bitboard PsLegalMoveMaskGen::generateKnightMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
+
+
+Bitboard PsLegalMoveMaskGen::generateKnightMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
     if (onlyCaptures) {
         return KnightMasks::MASKS[p] & pieces.getSideBitboard(Pieces::inverse(side));
     }
     return KnightMasks::MASKS[p] & pieces.getInvSideBitboard(side);
 }
-Bitboard PsLegalMoveMaskGen::generateBishopMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
+
+
+Bitboard PsLegalMoveMaskGen::generateBishopMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
     Bitboard nw = calcRay(pieces, p, side, onlyCaptures, SlidersMasks::DIRECTION::NORTH_WEST, false);
     Bitboard ne = calcRay(pieces, p, side, onlyCaptures, SlidersMasks::DIRECTION::NORTH_EAST, false);
     Bitboard sw = calcRay(pieces, p, side, onlyCaptures, SlidersMasks::DIRECTION::SOUTH_WEST, true);
@@ -77,7 +87,9 @@ Bitboard PsLegalMoveMaskGen::generateBishopMask(Pieces pieces, uint8_t p, uint8_
 
     return nw | ne | sw | se;
 }
-Bitboard PsLegalMoveMaskGen::generateRookMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
+
+
+Bitboard PsLegalMoveMaskGen::generateRookMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
     Bitboard n = calcRay(pieces, p, side, onlyCaptures, SlidersMasks::DIRECTION::NORTH, false);
     Bitboard s = calcRay(pieces, p, side, onlyCaptures, SlidersMasks::DIRECTION::SOUTH, true);
     Bitboard w = calcRay(pieces, p, side, onlyCaptures, SlidersMasks::DIRECTION::WEST, true);
@@ -85,19 +97,25 @@ Bitboard PsLegalMoveMaskGen::generateRookMask(Pieces pieces, uint8_t p, uint8_t 
 
     return n | s | w | e;
 }
-Bitboard PsLegalMoveMaskGen::generateQueenMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
+
+
+Bitboard PsLegalMoveMaskGen::generateQueenMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
     Bitboard bishopMask = generateBishopMask(pieces, p, side, onlyCaptures);
     Bitboard rookMask = generateRookMask(pieces, p, side, onlyCaptures);
 
     return bishopMask | rookMask;
 }
-Bitboard PsLegalMoveMaskGen::generateKingMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
+
+
+Bitboard PsLegalMoveMaskGen::generateKingMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures) {
     if (onlyCaptures) {
         return KingMasks::MASKS[p] & pieces.getSideBitboard(Pieces::inverse(side));
     }
     return KingMasks::MASKS[p] & pieces.getInvSideBitboard(side);
 }
-bool PsLegalMoveMaskGen::inDanger(Pieces pieces, uint8_t p, uint8_t side) {
+
+
+bool PsLegalMoveMaskGen::inDanger(const Pieces &pieces, uint8_t p, uint8_t side) {
     Bitboard oppositePawnsLeftCaptures = generatePawnsLeftCapturesMask(pieces, Pieces::inverse(side), true);
     Bitboard oppositePawnsRightCaptures = generatePawnsRightCapturesMask(pieces, Pieces::inverse(side), true);
     Bitboard oppositePawnsCaptures = oppositePawnsLeftCaptures | oppositePawnsRightCaptures;
@@ -124,7 +142,10 @@ bool PsLegalMoveMaskGen::inDanger(Pieces pieces, uint8_t p, uint8_t side) {
 
     return false;
 }
-Bitboard PsLegalMoveMaskGen::calcRay(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures, uint8_t direction, bool bsr) {
+
+
+Bitboard PsLegalMoveMaskGen::calcRay(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures, uint8_t direction,
+                                     bool bsr) {
     Bitboard blockers = SlidersMasks::MASKS[p][direction] & pieces.getAllBitboard();
     if (blockers == 0) {
         if (onlyCaptures) {
@@ -136,23 +157,20 @@ Bitboard PsLegalMoveMaskGen::calcRay(Pieces pieces, uint8_t p, uint8_t side, boo
     uint8_t blockingSquare;
     if (bsr) {
         blockingSquare = BOp::bsr(blockers);
-    }
-    else {
+    } else {
         blockingSquare = BOp::bsf(blockers);
     }
 
     Bitboard moves;
     if (onlyCaptures) {
         moves = 0;
-    }
-    else {
+    } else {
         moves = SlidersMasks::MASKS[p][direction] ^ SlidersMasks::MASKS[blockingSquare][direction];
     }
 
     if (BOp::getBit(pieces.getSideBitboard(side), blockingSquare)) {
         moves = BOp::set0(moves, blockingSquare);
-    }
-    else {
+    } else {
         moves = BOp::set1(moves, blockingSquare);
     }
 

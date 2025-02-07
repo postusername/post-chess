@@ -17,12 +17,13 @@
  */
 
 
+#ifndef MOVETESTER_H
+#define MOVETESTER_H
+
 #include <chrono>
 #include <iomanip>
+
 #include "LegalMoveGen.hpp"
-
-
-#pragma once
 
 
 #define nsecs std::chrono::high_resolution_clock::now().time_since_epoch().count()
@@ -31,6 +32,7 @@
 class LegalMoveGenTester {
 public:
     static void runTests();
+
 private:
     struct Test {
         std::string shortFen;
@@ -44,5 +46,8 @@ private:
     };
 
     static void runTest(const Test &test);
-    static uint64_t getNodesNumber(const Position& position, uint8_t side, uint32_t depth);
+
+    static uint64_t getNodesNumber(const Position &position, uint8_t side, uint32_t depth);
 };
+
+#endif

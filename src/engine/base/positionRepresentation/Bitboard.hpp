@@ -17,13 +17,13 @@
  */
 
 
-#include <iostream>
-#include <cstdint>
-#include <bit>
+#ifndef BITBOARD_H
+#define BITBOARD_H
+
 #include <array>
-
-
-#pragma once
+#include <bit>
+#include <cstdint>
+#include <iostream>
 
 
 typedef uint64_t Bitboard;
@@ -31,28 +31,32 @@ typedef uint64_t Bitboard;
 
 namespace BOp {
     static constexpr std::array<uint8_t, 64> BIT_SCAN_TABLE = {
-            0, 47,  1, 56, 48, 27,  2, 60,
-            57, 49, 41, 37, 28, 16,  3, 61,
-            54, 58, 35, 52, 50, 42, 21, 44,
-            38, 32, 29, 23, 17, 11,  4, 62,
-            46, 55, 26, 59, 40, 36, 15, 53,
-            34, 51, 20, 43, 31, 22, 10, 45,
-            25, 39, 14, 33, 19, 30,  9, 24,
-            13, 18,  8, 12,  7,  6,  5, 63
+        0, 47, 1, 56, 48, 27, 2, 60,
+        57, 49, 41, 37, 28, 16, 3, 61,
+        54, 58, 35, 52, 50, 42, 21, 44,
+        38, 32, 29, 23, 17, 11, 4, 62,
+        46, 55, 26, 59, 40, 36, 15, 53,
+        34, 51, 20, 43, 31, 22, 10, 45,
+        25, 39, 14, 33, 19, 30, 9, 24,
+        13, 18, 8, 12, 7, 6, 5, 63
     };
+
     static constexpr Bitboard set1(Bitboard bb, uint8_t square) {
         bb = bb | (1ull << square);
         return bb;
     }
+
     static constexpr Bitboard set0(Bitboard bb, uint8_t square) {
         bb = bb & (~(1ull << square));
         return bb;
     }
+
     static constexpr bool getBit(Bitboard bb, uint8_t square) {
         return (bb & (1ull << square));
     }
+
     static void print(Bitboard bb) {
-        for (int8_t y = 7; y >= 0; y = y - 1) {
+        for (int8_t y = 7; y >= 0; y--) {
             for (uint8_t x = 0; x < 8; x = x + 1) {
                 std::cout << "|  ";
 
@@ -64,12 +68,15 @@ namespace BOp {
             std::cout << "|\n";
         }
     }
+
     static constexpr uint8_t count1(Bitboard bb) {
         return std::popcount(bb);
     }
+
     static constexpr uint8_t bsf(Bitboard bb) {
         return BIT_SCAN_TABLE[((bb ^ (bb - 1)) * 0x03f79d71b4cb0a89) >> 58];
     }
+
     static constexpr uint8_t bsr(Bitboard bb) {
         bb = bb | (bb >> 1);
         bb = bb | (bb >> 2);
@@ -92,7 +99,9 @@ namespace BRows {
         }
         return rows;
     }
+
     static constexpr std::array<Bitboard, 8> ROWS = calcRows();
+
     static consteval std::array<Bitboard, 8> calcInvRows() {
         std::array<Bitboard, 8> invRows{};
         for (uint8_t i = 0; i < 8; i = i + 1) {
@@ -100,6 +109,7 @@ namespace BRows {
         }
         return invRows;
     }
+
     static constexpr std::array<Bitboard, 8> INV_ROWS = BRows::calcInvRows();
 }
 
@@ -114,7 +124,9 @@ namespace BColumns {
         }
         return columns;
     }
+
     static constexpr std::array<Bitboard, 8> COLUMNS = BColumns::calcColumns();
+
     static consteval std::array<Bitboard, 8> calcInvColumns() {
         std::array<Bitboard, 8> invColumns{};
         for (uint8_t i = 0; i < 8; i = i + 1) {
@@ -122,5 +134,8 @@ namespace BColumns {
         }
         return invColumns;
     }
+
     static constexpr std::array<Bitboard, 8> INV_COLUMNS = BColumns::calcInvColumns();
 }
+
+#endif

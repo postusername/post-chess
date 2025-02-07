@@ -17,36 +17,43 @@
  */
 
 
-#include <unordered_map>
-#include <cstdint>
+#ifndef STORAGE_H
+#define STORAGE_H
+
 #include <string>
-#include <SFML/Graphics.hpp>
+#include <unordered_map>
 #include <SFML/Audio.hpp>
-
-
-#pragma once
+#include <SFML/Graphics.hpp>
 
 
 class Storage {
 public:
-    static Storage* getPtr();
+    static Storage *getPtr();
+
     Storage(const Storage &donor) = delete;
 
     void setRoot(const std::string &newRoot);
 
-    void addTexture(const std::string& name, const std::string& path);
-    void addFont(const std::string& name, const std::string& path);
-    void addSoundBuffer(const std::string& name, const std::string& path);
-    void addMusic(const std::string& name, const std::string& path);
+    void addTexture(const std::string &name, const std::string &path);
 
-    [[nodiscard]] sf::Texture *getTexture(const std::string& name);
-    [[nodiscard]] sf::Font *getFont(const std::string& name);
-    [[nodiscard]] sf::SoundBuffer *getSoundBuffer(const std::string& name);
-    [[nodiscard]] sf::Music *getMusic(const std::string& name);
+    void addFont(const std::string &name, const std::string &path);
+
+    void addSoundBuffer(const std::string &name, const std::string &path);
+
+    void addMusic(const std::string &name, const std::string &path);
+
+    [[nodiscard]] sf::Texture *getTexture(const std::string &name);
+
+    [[nodiscard]] sf::Font *getFont(const std::string &name);
+
+    [[nodiscard]] sf::SoundBuffer *getSoundBuffer(const std::string &name);
+
+    [[nodiscard]] sf::Music *getMusic(const std::string &name);
+
 private:
     Storage();
 
-    static Storage* storage;
+    static Storage *storage;
 
     std::string root;
     std::unordered_map<std::string, sf::Texture> textures;
@@ -54,3 +61,5 @@ private:
     std::unordered_map<std::string, sf::SoundBuffer> soundbuffers;
     std::unordered_map<std::string, sf::Music> music;
 };
+
+#endif

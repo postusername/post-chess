@@ -17,29 +17,31 @@
  */
 
 
-#include "../positionRepresentation/Position.hpp"
-#include "KnightMasks.hpp"
+#ifndef PSEUDOMOVES_H
+#define PSEUDOMOVES_H
+
 #include "KingMasks.hpp"
+#include "KnightMasks.hpp"
 #include "SlidersMasks.hpp"
-
-
-#pragma once
+#include "../positionRepresentation/Position.hpp"
 
 
 class PsLegalMoveMaskGen {
 public:
-    static Bitboard generatePawnsDefaultMask(Pieces pieces, uint8_t side);
-    static Bitboard generatePawnsLongMask(Pieces pieces, uint8_t side);
-    static Bitboard generatePawnsLeftCapturesMask(Pieces pieces, uint8_t side, bool includeAllAttacks=false);
-    static Bitboard generatePawnsRightCapturesMask(Pieces pieces, uint8_t side, bool includeAllAttacks=false);
+    static Bitboard generatePawnsDefaultMask(const Pieces &pieces, uint8_t side);
+    static Bitboard generatePawnsLongMask(const Pieces &pieces, uint8_t side);
+    static Bitboard generatePawnsLeftCapturesMask(const Pieces &pieces, uint8_t side, bool includeAllAttacks=false);
+    static Bitboard generatePawnsRightCapturesMask(const Pieces &pieces, uint8_t side, bool includeAllAttacks=false);
 
-    static Bitboard generateKnightMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
-    static Bitboard generateBishopMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
-    static Bitboard generateRookMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
-    static Bitboard generateQueenMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
-    static Bitboard generateKingMask(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
+    static Bitboard generateKnightMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
+    static Bitboard generateBishopMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
+    static Bitboard generateRookMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
+    static Bitboard generateQueenMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
+    static Bitboard generateKingMask(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures=false);
 
-    static bool inDanger(Pieces pieces, uint8_t p, uint8_t side);
+    static bool inDanger(const Pieces &pieces, uint8_t p, uint8_t side);
 private:
-    static Bitboard calcRay(Pieces pieces, uint8_t p, uint8_t side, bool onlyCaptures, uint8_t direction, bool bsr);
+    static Bitboard calcRay(const Pieces &pieces, uint8_t p, uint8_t side, bool onlyCaptures, uint8_t direction, bool bsr);
 };
+
+#endif

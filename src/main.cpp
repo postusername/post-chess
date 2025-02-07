@@ -22,20 +22,18 @@
 
 
 #if TEST_LEGAL_MOVE_GENERATOR
-#include "engine/base/moveGeneration/LegalMoveGenTester.hpp"
-#endif
-#if SHOW_UI
-#include "ui/UI.hpp"
+    #include "engine/base/moveGeneration/LegalMoveGenTester.hpp"
+#elif SHOW_UI
+    #include "ui/UI.hpp"
 #endif
 
 
 int main() {
     #if TEST_LEGAL_MOVE_GENERATOR
-    LegalMoveGenTester::runTests();
-    #endif
-    #if SHOW_UI
-    UI ui;
-    ui.start();
+        LegalMoveGenTester::runTests();
+    #elif SHOW_UI
+        UI ui;
+        ui.start();
     #endif
 
     return 0;

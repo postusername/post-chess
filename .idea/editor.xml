@@ -576,5 +576,7 @@
     <option name="/Default/CodeInspection/Highlighting/InspectionSeverities/=StringLiteralTypo/@EntryIndexRemoved" />
     <option name="/Default/CodeInspection/Highlighting/InspectionSeverities/=CommentTypo/@EntryIndexRemoved" />
     <option name="/Default/CodeInspection/Highlighting/InspectionSeverities/=IdentifierTypo/@EntryIndexRemoved" />
+    <option name="/Default/CodeStyle/CppSortIncludes/CaseSensitive/@EntryValue" />
+    <option name="/Default/CodeStyle/CppSortIncludes/PreserveIncludeBlocks/@EntryValue" value="false" type="bool" />
   </component>
 </project>

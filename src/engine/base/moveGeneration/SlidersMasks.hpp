@@ -17,10 +17,10 @@
  */
 
 
+#ifndef SLIDERMASKS_H
+#define SLIDERMASKS_H
+
 #include "../positionRepresentation/Bitboard.hpp"
-
-
-#pragma once
 
 
 namespace SlidersMasks {
@@ -34,11 +34,12 @@ namespace SlidersMasks {
         SOUTH_WEST,
         SOUTH_EAST,
     };
+
     static consteval Bitboard calcMask(uint8_t p, int8_t direction) {
         Bitboard mask = 0;
 
-        int8_t x = p % 8;
-        int8_t y = p / 8;
+        int x = p % 8;
+        int y = p / 8;
 
         for (; ;) {
             switch (direction) {
@@ -70,6 +71,8 @@ namespace SlidersMasks {
                     y = y - 1;
                     x = x + 1;
                     break;
+                default:
+                    break;
             }
 
             if (x > 7 or x < 0 or y > 7 or y < 0) {
@@ -81,14 +84,18 @@ namespace SlidersMasks {
 
         return mask;
     }
+
     static consteval std::array<std::array<Bitboard, 8>, 64> calcMasks() {
         std::array<std::array<Bitboard, 8>, 64> masks{};
-        for (uint8_t i = 0; i < 64; i = i + 1) {
-            for (uint8_t j = 0; j < 8; j = j + 1) {
+        for (uint8_t i = 0; i < 64; i++) {
+            for (int8_t j = 0; j < 8; j++) {
                 masks[i][j] = calcMask(i, j);
             }
         }
         return masks;
     }
+
     static constexpr std::array<std::array<Bitboard, 8>, 64> MASKS = calcMasks();
-};
+}
+
+#endif

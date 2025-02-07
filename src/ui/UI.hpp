@@ -17,17 +17,19 @@
  */
 
 
-#include "../engine/ai/AI.hpp"
+#ifndef UI_H
+#define UI_H
+
 #include "Storage.hpp"
-
-
-#pragma once
+#include "../engine/ai/AI.hpp"
 
 
 class UI {
 public:
     UI();
+
     void start();
+
 private:
     sf::RenderWindow window;
     sf::Event event{};
@@ -37,6 +39,7 @@ private:
     sf::Vector2i buff;
 
     static constexpr int32_t BOARD_MARGIN = 20;
+
     enum STATUS {
         WHITE_TO_MOVE,
         BLACK_TO_MOVE,
@@ -46,13 +49,22 @@ private:
     };
 
     void update();
+
     void drawCells();
+
     void drawPieces();
+
     void drawSelectedPieceMoves();
+
     void updateWindowTitle();
 
-    [[nodiscard]] sf::Vector2f getCellSize();
-    [[nodiscard]] sf::Vector2f getCellPosition(int32_t x, int32_t y);
-    [[nodiscard]] uint8_t getStatus();
+    [[nodiscard]] sf::Vector2f getCellSize() const;
+
+    [[nodiscard]] sf::Vector2f getCellPosition(int32_t x, int32_t y) const;
+
+    [[nodiscard]] uint8_t getStatus() const;
+
     [[nodiscard]] std::string getTextureName(int32_t x, int32_t y) const;
 };
+
+#endif

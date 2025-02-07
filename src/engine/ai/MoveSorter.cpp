@@ -20,9 +20,9 @@
 #include "MoveSorter.hpp"
 
 
-MoveList MoveSorter::sort(Pieces pieces, MoveList moves) {
+MoveList MoveSorter::sort(const Pieces &pieces, MoveList moves) {
     for (uint8_t i = 0; i < moves.getSize() - 1; i = i + 1) {
-        for (uint8_t j = 0; j < moves.getSize() - i - 1; j = j + 1) {
+        for (int j = 0; j < moves.getSize() - i - 1; j = j + 1) {
             if (MoveSorter::evaluateMove(pieces, moves[j]) < MoveSorter::evaluateMove(pieces, moves[j + 1])) {
                 std::swap(moves[j], moves[j + 1]);
             }
@@ -30,12 +30,16 @@ MoveList MoveSorter::sort(Pieces pieces, MoveList moves) {
     }
     return moves;
 }
-int32_t MoveSorter::evaluateMove(Pieces pieces, Move move) {
+
+
+int32_t MoveSorter::evaluateMove(const Pieces &pieces, Move move) {
     int32_t evaluation = 0;
 
     if (move.getAttackerType() != PIECE::PAWN) {
-        Bitboard opponentPawnsAttacks = PsLegalMoveMaskGen::generatePawnsLeftCapturesMask(pieces, Pieces::inverse(move.getAttackerSide()), true) |
-                                        PsLegalMoveMaskGen::generatePawnsRightCapturesMask(pieces, Pieces::inverse(move.getAttackerSide()), true);
+        Bitboard opponentPawnsAttacks = PsLegalMoveMaskGen::generatePawnsLeftCapturesMask(
+                                            pieces, Pieces::inverse(move.getAttackerSide()), true) |
+                                        PsLegalMoveMaskGen::generatePawnsRightCapturesMask(
+                                            pieces, Pieces::inverse(move.getAttackerSide()), true);
         if (BOp::getBit(opponentPawnsAttacks, move.getTo())) {
             switch (move.getAttackerType()) {
                 case PIECE::KNIGHT:
@@ -49,6 +53,8 @@ int32_t MoveSorter::evaluateMove(Pieces pieces, Move move) {
                     break;
                 case PIECE::QUEEN:
                     evaluation = evaluation - StaticEvaluator::MATERIAL::QUEEN;
+                    break;
+                default:
                     break;
             }
         }
@@ -71,7 +77,10 @@ int32_t MoveSorter::evaluateMove(Pieces pieces, Move move) {
             case PIECE::QUEEN:
                 evaluation = evaluation + 1000 * StaticEvaluator::MATERIAL::QUEEN;
                 break;
+            default:
+                break;
         }
+
         switch (move.getAttackerType()) {
             case PIECE::PAWN:
                 evaluation = evaluation - StaticEvaluator::MATERIAL::PAWN;
@@ -87,6 +96,8 @@ int32_t MoveSorter::evaluateMove(Pieces pieces, Move move) {
                 break;
             case PIECE::QUEEN:
                 evaluation = evaluation - StaticEvaluator::MATERIAL::QUEEN;
+                break;
+            default:
                 break;
         }
     }

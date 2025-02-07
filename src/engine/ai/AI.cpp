@@ -20,11 +20,11 @@
 #include "AI.hpp"
 
 
-Move AI::getBestMove(const Position& position, uint8_t side, int32_t ms) {
+Move AI::getBestMove(const Position &position, uint8_t side, int32_t ms) {
     std::cout << position << std::endl;
     StaticEvaluator::evaluate(position.getPieces(), true);
 
-    int64_t start = nsecs;
+    const int64_t start = nsecs;
     SearchInterrupter::getPtr()->resume();
 
     std::cout << "Search started." << std::endl;
@@ -46,14 +46,13 @@ Move AI::getBestMove(const Position& position, uint8_t side, int32_t ms) {
 
         if (continueSearch or i == 1) {
             std::tie(eval, gameWasFinished, move) = thread.get();
-        }
-        else {
+        } else {
             SearchInterrupter::getPtr()->interrupt();
-            std::tuple<int32_t, bool, Move> trash = thread.get();
             break;
         }
 
-        std::cout << "base depth: " << std::setw(4) << i << ". Evaluation: " << std::setw(6) << (float)eval / 100.0f << " pawns.  Time: " << std::setw(10) << (nsecs - start) / (int32_t)1e+6 << " ms." << std::endl;
+        std::cout << "base depth: " << std::setw(4) << i << ". Evaluation: " << std::setw(6) << static_cast<float>(eval) / 100.0f <<
+                " pawns.  Time: " << std::setw(10) << (nsecs - start) / static_cast<int32_t>(1e+6) << " ms." << std::endl;
         if (gameWasFinished) {
             break;
         }
@@ -63,13 +62,18 @@ Move AI::getBestMove(const Position& position, uint8_t side, int32_t ms) {
 
     return move;
 }
-std::tuple<int32_t, bool, Move> AI::alphaBeta(const Position& position, uint8_t side, int32_t depthLeft) {
+
+
+std::tuple<int32_t, bool, Move> AI::alphaBeta(const Position &position, uint8_t side, int32_t depthLeft) {
     if (side == SIDE::WHITE) {
         return alphaBetaMax(position, INF::NEGATIVE, INF::POSITIVE, depthLeft);
     }
     return alphaBetaMin(position, INF::NEGATIVE, INF::POSITIVE, depthLeft);
 }
-std::tuple<int32_t, bool, Move> AI::alphaBetaMin(const Position &position, int32_t alpha, int32_t beta, int32_t depthLeft, int32_t depthCurrent) {
+
+
+std::tuple<int32_t, bool, Move> AI::alphaBetaMin(const Position &position, int32_t alpha, int32_t beta,
+                                                 int32_t depthLeft, int32_t depthCurrent) {
     if (SearchInterrupter::getPtr()->interrupted()) {
         return std::make_tuple(0, false, Move());
     }
@@ -83,7 +87,7 @@ std::tuple<int32_t, bool, Move> AI::alphaBetaMin(const Position &position, int32
     MoveList moves = LegalMoveGen::generate(position, SIDE::BLACK);
     moves = MoveSorter::sort(position.getPieces(), moves);
     Move bestMove;
-    uint8_t bestMoveIndex;
+    uint8_t bestMoveIndex = 0;
     bool gameWasFinishedOnBestMove;
 
     uint8_t tableResult = TranspositionTable::getPtr()->getBestMoveIndex(position.getHash());
@@ -91,7 +95,9 @@ std::tuple<int32_t, bool, Move> AI::alphaBetaMin(const Position &position, int32
         std::swap(moves[0], moves[tableResult]);
     }
 
-    bool check = PsLegalMoveMaskGen::inDanger(position.getPieces(), BOp::bsf(position.getPieces().getPieceBitboard(SIDE::BLACK, PIECE::KING)), SIDE::BLACK);
+    const bool check = PsLegalMoveMaskGen::inDanger(position.getPieces(),
+                                              BOp::bsf(position.getPieces().getPieceBitboard(SIDE::BLACK, PIECE::KING)),
+                                              SIDE::BLACK);
     if (moves.getSize() == 0) {
         if (check) {
             return std::make_tuple(INF::POSITIVE - depthLeft, true, Move());
@@ -100,13 +106,13 @@ std::tuple<int32_t, bool, Move> AI::alphaBetaMin(const Position &position, int32
     }
 
     for (uint8_t i = 0; i < moves.getSize(); i = i + 1) {
-        Move move = moves[i];
+        const Move move = moves[i];
 
         Position copy = position;
         copy.move(move);
         std::tuple<int32_t, bool, Move> a = alphaBetaMax(copy, alpha, beta, depthLeft - !check, depthCurrent + 1);
-        int32_t evaluation = std::get<0>(a);
-        bool gameWasFinished = std::get<1>(a);
+        const int32_t evaluation = std::get<0>(a);
+        const bool gameWasFinished = std::get<1>(a);
 
         if (evaluation <= alpha) {
             TranspositionTable::getPtr()->addEntry(position.getHash(), depthCurrent, bestMoveIndex);
@@ -123,7 +129,10 @@ std::tuple<int32_t, bool, Move> AI::alphaBetaMin(const Position &position, int32
     TranspositionTable::getPtr()->addEntry(position.getHash(), depthCurrent, bestMoveIndex);
     return std::make_tuple(beta, gameWasFinishedOnBestMove, bestMove);
 }
-std::tuple<int32_t, bool, Move> AI::alphaBetaMax(const Position &position, int32_t alpha, int32_t beta, int32_t depthLeft, int32_t depthCurrent) {
+
+
+std::tuple<int32_t, bool, Move> AI::alphaBetaMax(const Position &position, int32_t alpha, int32_t beta,
+                                                 int32_t depthLeft, int32_t depthCurrent) {
     if (SearchInterrupter::getPtr()->interrupted()) {
         return std::make_tuple(0, false, Move());
     }
@@ -137,7 +146,7 @@ std::tuple<int32_t, bool, Move> AI::alphaBetaMax(const Position &position, int32
     MoveList moves = LegalMoveGen::generate(position, SIDE::WHITE);
     moves = MoveSorter::sort(position.getPieces(), moves);
     Move bestMove;
-    uint8_t bestMoveIndex;
+    uint8_t bestMoveIndex = 0;
     bool gameWasFinishedOnBestMove;
 
     uint8_t tableResult = TranspositionTable::getPtr()->getBestMoveIndex(position.getHash());
@@ -145,7 +154,9 @@ std::tuple<int32_t, bool, Move> AI::alphaBetaMax(const Position &position, int32
         std::swap(moves[0], moves[tableResult]);
     }
 
-    bool check = PsLegalMoveMaskGen::inDanger(position.getPieces(), BOp::bsf(position.getPieces().getPieceBitboard(SIDE::WHITE, PIECE::KING)), SIDE::WHITE);
+    const bool check = PsLegalMoveMaskGen::inDanger(position.getPieces(),
+                                              BOp::bsf(position.getPieces().getPieceBitboard(SIDE::WHITE, PIECE::KING)),
+                                              SIDE::WHITE);
     if (moves.getSize() == 0) {
         if (check) {
             return std::make_tuple(INF::NEGATIVE + depthLeft, true, Move());
@@ -154,13 +165,13 @@ std::tuple<int32_t, bool, Move> AI::alphaBetaMax(const Position &position, int32
     }
 
     for (uint8_t i = 0; i < moves.getSize(); i = i + 1) {
-        Move move = moves[i];
+        const Move move = moves[i];
 
         Position copy = position;
         copy.move(move);
         std::tuple<int32_t, bool, Move> a = alphaBetaMin(copy, alpha, beta, depthLeft - !check, depthCurrent + 1);
-        int32_t evaluation = std::get<0>(a);
-        bool gameWasFinished = std::get<1>(a);
+        const int32_t evaluation = std::get<0>(a);
+        const bool gameWasFinished = std::get<1>(a);
 
         if (evaluation >= beta) {
             TranspositionTable::getPtr()->addEntry(position.getHash(), depthCurrent, bestMoveIndex);
@@ -177,7 +188,9 @@ std::tuple<int32_t, bool, Move> AI::alphaBetaMax(const Position &position, int32
     TranspositionTable::getPtr()->addEntry(position.getHash(), depthCurrent, bestMoveIndex);
     return std::make_tuple(alpha, gameWasFinishedOnBestMove, bestMove);
 }
-int32_t AI::alphaBetaMinOnlyCaptures(const Position& position, int32_t alpha, int32_t beta) {
+
+
+int32_t AI::alphaBetaMinOnlyCaptures(const Position &position, int32_t alpha, int32_t beta) {
     if (SearchInterrupter::getPtr()->interrupted()) {
         return 0;
     }
@@ -194,7 +207,7 @@ int32_t AI::alphaBetaMinOnlyCaptures(const Position& position, int32_t alpha, in
     moves = MoveSorter::sort(position.getPieces(), moves);
 
     for (uint8_t i = 0; i < moves.getSize(); i = i + 1) {
-        Move move = moves[i];
+        const Move move = moves[i];
 
         Position copy = position;
         copy.move(move);
@@ -210,7 +223,9 @@ int32_t AI::alphaBetaMinOnlyCaptures(const Position& position, int32_t alpha, in
 
     return beta;
 }
-int32_t AI::alphaBetaMaxOnlyCaptures(const Position& position, int32_t alpha, int32_t beta) {
+
+
+int32_t AI::alphaBetaMaxOnlyCaptures(const Position &position, int32_t alpha, int32_t beta) {
     if (SearchInterrupter::getPtr()->interrupted()) {
         return 0;
     }
@@ -227,7 +242,7 @@ int32_t AI::alphaBetaMaxOnlyCaptures(const Position& position, int32_t alpha, in
     moves = MoveSorter::sort(position.getPieces(), moves);
 
     for (uint8_t i = 0; i < moves.getSize(); i = i + 1) {
-        Move move = moves[i];
+        const Move move = moves[i];
 
         Position copy = position;
         copy.move(move);

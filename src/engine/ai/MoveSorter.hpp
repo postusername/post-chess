@@ -17,16 +17,19 @@
  */
 
 
-#include "../base/moveGeneration/MoveList.hpp"
+#ifndef MOVESORT_H
+#define MOVESORT_H
+
 #include "StaticEvaluator.hpp"
-
-
-#pragma once
+#include "../base/moveGeneration/MoveList.hpp"
 
 
 class MoveSorter {
 public:
-    static MoveList sort(Pieces pieces, MoveList moves);
+    static MoveList sort(const Pieces &pieces, MoveList moves);
+
 private:
-    static int32_t evaluateMove(Pieces pieces, Move move);
+    static int32_t evaluateMove(const Pieces &pieces, Move move);
 };
+
+#endif

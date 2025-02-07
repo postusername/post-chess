@@ -21,7 +21,10 @@
 
 
 ZobristHash::ZobristHash() = default;
-ZobristHash::ZobristHash(Pieces pieces, bool blackToMove, bool wlCastling, bool wsCastling, bool blCastling, bool bsCastling) {
+
+
+ZobristHash::ZobristHash(const Pieces &pieces, bool blackToMove, bool wlCastling, bool wsCastling, bool blCastling,
+                         bool bsCastling) {
     this->value = 0;
 
     if (blackToMove) {
@@ -44,11 +47,9 @@ ZobristHash::ZobristHash(Pieces pieces, bool blackToMove, bool wlCastling, bool 
     for (uint8_t square = 0; square < 64; square = square + 1) {
         if (BOp::getBit(pieces.getSideBitboard(SIDE::WHITE), square)) {
             side = SIDE::WHITE;
-        }
-        else if (BOp::getBit(pieces.getSideBitboard(SIDE::BLACK), square)) {
+        } else if (BOp::getBit(pieces.getSideBitboard(SIDE::BLACK), square)) {
             side = SIDE::BLACK;
-        }
-        else {
+        } else {
             continue;
         }
         for (uint8_t type = 0; type < 6; type = type + 1) {
@@ -59,27 +60,43 @@ ZobristHash::ZobristHash(Pieces pieces, bool blackToMove, bool wlCastling, bool 
         }
     }
 }
+
+
 bool operator ==(ZobristHash left, ZobristHash right) {
     return (left.value == right.value);
 }
+
+
 void ZobristHash::invertPiece(uint8_t square, uint8_t type, uint8_t side) {
     this->value = this->value ^ ZobristHashConstants::CONSTANTS[square][side][type];
 }
+
+
 void ZobristHash::invertMove() {
     this->value = this->value ^ ZobristHashConstants::BLACK_MOVE;
 }
+
+
 void ZobristHash::invertWLCastling() {
     this->value = this->value ^ ZobristHashConstants::WL_CASTLING;
 }
+
+
 void ZobristHash::invertWSCastling() {
     this->value = this->value ^ ZobristHashConstants::WS_CASTLING;
 }
+
+
 void ZobristHash::invertBLCastling() {
     this->value = this->value ^ ZobristHashConstants::BL_CASTLING;
 }
+
+
 void ZobristHash::invertBSCastling() {
     this->value = this->value ^ ZobristHashConstants::BS_CASTLING;
 }
+
+
 uint64_t ZobristHash::getValue() const {
     return this->value;
 }

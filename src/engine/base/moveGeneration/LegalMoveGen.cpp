@@ -32,13 +32,14 @@ MoveList LegalMoveGen::generate(const Position &position, uint8_t side, bool onl
     if (side == SIDE::WHITE) {
         pawnsLeftCaptureIndex = -7;
         pawnsRightCaptureIndex = -9;
-    }
-    else {
+    } else {
         pawnsLeftCaptureIndex = 9;
         pawnsRightCaptureIndex = 7;
     }
-    pawnsMaskToMoves(position.getPieces(), pawnsLeftCaptures, side, pawnsLeftCaptureIndex, true,Move::FLAG::DEFAULT, moves);
-    pawnsMaskToMoves(position.getPieces(), pawnsRightCaptures, side, pawnsRightCaptureIndex, true,Move::FLAG::DEFAULT, moves);
+    pawnsMaskToMoves(position.getPieces(), pawnsLeftCaptures, side, pawnsLeftCaptureIndex, true, Move::FLAG::DEFAULT,
+                     moves);
+    pawnsMaskToMoves(position.getPieces(), pawnsRightCaptures, side, pawnsRightCaptureIndex, true, Move::FLAG::DEFAULT,
+                     moves);
 
     if (!onlyCaptures) {
         Bitboard pawnsDefault = PsLegalMoveMaskGen::generatePawnsDefaultMask(position.getPieces(), side);
@@ -49,13 +50,13 @@ MoveList LegalMoveGen::generate(const Position &position, uint8_t side, bool onl
         if (side == SIDE::WHITE) {
             pawnDefaultIndex = -8;
             pawnLongIndex = -16;
-        }
-        else {
+        } else {
             pawnDefaultIndex = 8;
             pawnLongIndex = 16;
         }
-        pawnsMaskToMoves(position.getPieces(), pawnsDefault, side, pawnDefaultIndex, false,Move::FLAG::DEFAULT, moves);
-        pawnsMaskToMoves(position.getPieces(), pawnsLong, side, pawnLongIndex, false,Move::FLAG::PAWN_LONG_MOVE, moves);
+        pawnsMaskToMoves(position.getPieces(), pawnsDefault, side, pawnDefaultIndex, false, Move::FLAG::DEFAULT, moves);
+        pawnsMaskToMoves(position.getPieces(), pawnsLong, side, pawnLongIndex, false, Move::FLAG::PAWN_LONG_MOVE,
+                         moves);
     }
 
     Bitboard allKnights = position.getPieces().getPieceBitboard(side, PIECE::KNIGHT);
@@ -95,16 +96,20 @@ MoveList LegalMoveGen::generate(const Position &position, uint8_t side, bool onl
     addEnPassantCaptures(position.getPieces(), side, position.getEnPassant(), moves);
     if (!onlyCaptures) {
         if (side == SIDE::WHITE) {
-            addCastlingMoves(position.getPieces(), SIDE::WHITE, position.getWLCastling(), position.getWSCastling(),moves);
-        }
-        else {
-            addCastlingMoves(position.getPieces(), SIDE::BLACK, position.getBLCastling(), position.getBSCastling(),moves);
+            addCastlingMoves(position.getPieces(), SIDE::WHITE, position.getWLCastling(), position.getWSCastling(),
+                             moves);
+        } else {
+            addCastlingMoves(position.getPieces(), SIDE::BLACK, position.getBLCastling(), position.getBSCastling(),
+                             moves);
         }
     }
 
     return moves;
 }
-void LegalMoveGen::pieceMaskToMoves(Pieces pieces, Bitboard mask, uint8_t attackerP, uint8_t attackerType, uint8_t attackerSide, MoveList &moves) {
+
+
+void LegalMoveGen::pieceMaskToMoves(const Pieces &pieces, Bitboard mask, uint8_t attackerP, uint8_t attackerType,
+                                    uint8_t attackerSide, MoveList &moves) {
     while (mask) {
         uint8_t defenderP = BOp::bsf(mask);
         mask = BOp::set0(mask, defenderP);
@@ -124,7 +129,10 @@ void LegalMoveGen::pieceMaskToMoves(Pieces pieces, Bitboard mask, uint8_t attack
         }
     }
 }
-void LegalMoveGen::pawnsMaskToMoves(Pieces pieces, Bitboard mask, uint8_t attackerSide, int8_t attackerIndex, bool checkDefender, uint8_t flag, MoveList &moves) {
+
+
+void LegalMoveGen::pawnsMaskToMoves(const Pieces &pieces, Bitboard mask, uint8_t attackerSide, int8_t attackerIndex,
+                                    bool checkDefender, uint8_t flag, MoveList &moves) {
     uint8_t defenderType = Move::NONE;
 
     while (mask) {
@@ -141,75 +149,106 @@ void LegalMoveGen::pawnsMaskToMoves(Pieces pieces, Bitboard mask, uint8_t attack
             }
         }
 
-        Move move = {(uint8_t)(defenderP + attackerIndex), defenderP, PIECE::PAWN, attackerSide, defenderType, Pieces::inverse(attackerSide), flag};
+        Move move = {
+            static_cast<uint8_t>(defenderP + attackerIndex), defenderP, PIECE::PAWN, attackerSide, defenderType,
+            Pieces::inverse(attackerSide), flag
+        };
 
         if (isLegal(pieces, move)) {
             if (defenderP < 8 or defenderP > 55) {
-                moves.push({(uint8_t)(defenderP + attackerIndex), defenderP, 0, attackerSide, defenderType,Pieces::inverse(attackerSide), Move::FLAG::PROMOTE_TO_KNIGHT});
-                moves.push({(uint8_t)(defenderP + attackerIndex), defenderP, 0, attackerSide, defenderType,Pieces::inverse(attackerSide), Move::FLAG::PROMOTE_TO_BISHOP});
-                moves.push({(uint8_t)(defenderP + attackerIndex), defenderP, 0, attackerSide, defenderType,Pieces::inverse(attackerSide), Move::FLAG::PROMOTE_TO_ROOK});
-                moves.push({(uint8_t)(defenderP + attackerIndex), defenderP, 0, attackerSide, defenderType,Pieces::inverse(attackerSide), Move::FLAG::PROMOTE_TO_QUEEN});
-            }
-            else {
+                moves.push({
+                    static_cast<uint8_t>(defenderP + attackerIndex), defenderP, 0, attackerSide, defenderType,
+                    Pieces::inverse(attackerSide), Move::FLAG::PROMOTE_TO_KNIGHT
+                });
+                moves.push({
+                    static_cast<uint8_t>(defenderP + attackerIndex), defenderP, 0, attackerSide, defenderType,
+                    Pieces::inverse(attackerSide), Move::FLAG::PROMOTE_TO_BISHOP
+                });
+                moves.push({
+                    static_cast<uint8_t>(defenderP + attackerIndex), defenderP, 0, attackerSide, defenderType,
+                    Pieces::inverse(attackerSide), Move::FLAG::PROMOTE_TO_ROOK
+                });
+                moves.push({
+                    static_cast<uint8_t>(defenderP + attackerIndex), defenderP, 0, attackerSide, defenderType,
+                    Pieces::inverse(attackerSide), Move::FLAG::PROMOTE_TO_QUEEN
+                });
+            } else {
                 moves.push(move);
             }
         }
     }
 }
+
+
 bool LegalMoveGen::isLegal(Pieces pieces, Move move) {
-    pieces.setPieceBitboard(move.getAttackerSide(), move.getAttackerType(), BOp::set0(pieces.getPieceBitboard(move.getAttackerSide(), move.getAttackerType()), move.getFrom()));
-    pieces.setPieceBitboard(move.getAttackerSide(), move.getAttackerType(), BOp::set1(pieces.getPieceBitboard(move.getAttackerSide(), move.getAttackerType()), move.getTo()));
+    pieces.setPieceBitboard(move.getAttackerSide(), move.getAttackerType(),
+                            BOp::set0(pieces.getPieceBitboard(move.getAttackerSide(), move.getAttackerType()),
+                                      move.getFrom()));
+    pieces.setPieceBitboard(move.getAttackerSide(), move.getAttackerType(),
+                            BOp::set1(pieces.getPieceBitboard(move.getAttackerSide(), move.getAttackerType()),
+                                      move.getTo()));
     if (move.getDefenderType() != Move::NONE) {
-        pieces.setPieceBitboard(move.getDefenderSide(), move.getDefenderType(), BOp::set0(pieces.getPieceBitboard(move.getDefenderSide(), move.getDefenderType()), move.getTo()));
+        pieces.setPieceBitboard(move.getDefenderSide(), move.getDefenderType(),
+                                BOp::set0(pieces.getPieceBitboard(move.getDefenderSide(), move.getDefenderType()),
+                                          move.getTo()));
     }
     if (move.getFlag() == Move::FLAG::EN_PASSANT_CAPTURE) {
         if (move.getAttackerSide() == SIDE::WHITE) {
-            pieces.setPieceBitboard(SIDE::BLACK, PIECE::PAWN, BOp::set0(pieces.getPieceBitboard(SIDE::BLACK, PIECE::PAWN), move.getTo() - 8));
-        }
-        else {
-            pieces.setPieceBitboard(SIDE::WHITE, PIECE::PAWN, BOp::set0(pieces.getPieceBitboard(SIDE::WHITE, PIECE::PAWN), move.getTo() + 8));
+            pieces.setPieceBitboard(SIDE::BLACK, PIECE::PAWN,
+                                    BOp::set0(pieces.getPieceBitboard(SIDE::BLACK, PIECE::PAWN), move.getTo() - 8));
+        } else {
+            pieces.setPieceBitboard(SIDE::WHITE, PIECE::PAWN,
+                                    BOp::set0(pieces.getPieceBitboard(SIDE::WHITE, PIECE::PAWN), move.getTo() + 8));
         }
     }
 
     pieces.updateBitboards();
 
-    return !PsLegalMoveMaskGen::inDanger(pieces, BOp::bsf(pieces.getPieceBitboard(move.getAttackerSide(), PIECE::KING)), move.getAttackerSide());
+    return !PsLegalMoveMaskGen::inDanger(pieces, BOp::bsf(pieces.getPieceBitboard(move.getAttackerSide(), PIECE::KING)),
+                                         move.getAttackerSide());
 }
-void LegalMoveGen::addEnPassantCaptures(Pieces pieces, uint8_t side, uint8_t enPassant, MoveList &moves) {
+
+
+void LegalMoveGen::addEnPassantCaptures(const Pieces &pieces, uint8_t side, uint8_t enPassant, MoveList &moves) {
     if (enPassant == Position::NONE) {
         return;
     }
 
     if (side == SIDE::WHITE) {
         if (enPassant % 8 != 7 and BOp::getBit(pieces.getPieceBitboard(SIDE::WHITE, PIECE::PAWN), enPassant - 7)) {
-            auto move = Move((uint8_t)(enPassant - 7), enPassant, PIECE::PAWN, SIDE::WHITE, Move::NONE, Move::NONE, Move::FLAG::EN_PASSANT_CAPTURE);
+            auto move = Move(static_cast<uint8_t>(enPassant - 7), enPassant, PIECE::PAWN, SIDE::WHITE, Move::NONE, Move::NONE,
+                             Move::FLAG::EN_PASSANT_CAPTURE);
             if (isLegal(pieces, move)) {
                 moves.push(move);
             }
         }
         if (enPassant % 8 != 0 and BOp::getBit(pieces.getPieceBitboard(SIDE::WHITE, PIECE::PAWN), enPassant - 9)) {
-            auto move = Move((uint8_t)(enPassant - 9), enPassant, PIECE::PAWN, SIDE::WHITE, Move::NONE, Move::NONE, Move::FLAG::EN_PASSANT_CAPTURE);
+            auto move = Move(static_cast<uint8_t>(enPassant - 9), enPassant, PIECE::PAWN, SIDE::WHITE, Move::NONE, Move::NONE,
+                             Move::FLAG::EN_PASSANT_CAPTURE);
             if (isLegal(pieces, move)) {
                 moves.push(move);
             }
         }
-    }
-    else {
+    } else {
         if (enPassant % 8 != 0 and BOp::getBit(pieces.getPieceBitboard(SIDE::BLACK, PIECE::PAWN), enPassant + 7)) {
-            auto move = Move((uint8_t)(enPassant + 7), enPassant, PIECE::PAWN, SIDE::BLACK, Move::NONE, Move::NONE, Move::FLAG::EN_PASSANT_CAPTURE);
+            auto move = Move(static_cast<uint8_t>(enPassant + 7), enPassant, PIECE::PAWN, SIDE::BLACK, Move::NONE, Move::NONE,
+                             Move::FLAG::EN_PASSANT_CAPTURE);
             if (isLegal(pieces, move)) {
                 moves.push(move);
             }
         }
         if (enPassant % 8 != 7 and BOp::getBit(pieces.getPieceBitboard(SIDE::BLACK, PIECE::PAWN), enPassant + 9)) {
-            auto move = Move((uint8_t)(enPassant + 9), enPassant, PIECE::PAWN, SIDE::BLACK, Move::NONE, Move::NONE, Move::FLAG::EN_PASSANT_CAPTURE);
+            auto move = Move(static_cast<uint8_t>(enPassant + 9), enPassant, PIECE::PAWN, SIDE::BLACK, Move::NONE, Move::NONE,
+                             Move::FLAG::EN_PASSANT_CAPTURE);
             if (isLegal(pieces, move)) {
                 moves.push(move);
             }
         }
     }
 }
-void LegalMoveGen::addCastlingMoves(Pieces pieces, uint8_t side, bool lCastling, bool sCastling, MoveList &moves) {
+
+
+void LegalMoveGen::addCastlingMoves(const Pieces &pieces, uint8_t side, bool lCastling, bool sCastling, MoveList &moves) {
     uint8_t index;
     uint8_t longCastlingFlag;
     uint8_t shortCastlingFlag;
@@ -217,8 +256,7 @@ void LegalMoveGen::addCastlingMoves(Pieces pieces, uint8_t side, bool lCastling,
         index = 0;
         longCastlingFlag = Move::FLAG::WL_CASTLING;
         shortCastlingFlag = Move::FLAG::WS_CASTLING;
-    }
-    else {
+    } else {
         index = 56;
         longCastlingFlag = Move::FLAG::BL_CASTLING;
         shortCastlingFlag = Move::FLAG::BS_CASTLING;
@@ -232,8 +270,9 @@ void LegalMoveGen::addCastlingMoves(Pieces pieces, uint8_t side, bool lCastling,
         !PsLegalMoveMaskGen::inDanger(pieces, BOp::bsf(pieces.getPieceBitboard(side, PIECE::KING)), side) and
         !PsLegalMoveMaskGen::inDanger(pieces, 2 + index, side) and
         !PsLegalMoveMaskGen::inDanger(pieces, 3 + index, side)) {
-
-        moves.push({(uint8_t)(4 + index), (uint8_t)(2 + index), PIECE::KING, side, Move::NONE, Move::NONE, longCastlingFlag});
+        moves.push({
+            static_cast<uint8_t>(4 + index), static_cast<uint8_t>(2 + index), PIECE::KING, side, Move::NONE, Move::NONE, longCastlingFlag
+        });
     }
     if (sCastling and
         BOp::getBit(pieces.getPieceBitboard(side, PIECE::ROOK), 7 + index) and
@@ -242,7 +281,8 @@ void LegalMoveGen::addCastlingMoves(Pieces pieces, uint8_t side, bool lCastling,
         !PsLegalMoveMaskGen::inDanger(pieces, BOp::bsf(pieces.getPieceBitboard(side, PIECE::KING)), side) and
         !PsLegalMoveMaskGen::inDanger(pieces, 5 + index, side) and
         !PsLegalMoveMaskGen::inDanger(pieces, 6 + index, side)) {
-
-        moves.push({(uint8_t)(4 + index), (uint8_t)(6 + index), PIECE::KING, side, Move::NONE, Move::NONE, shortCastlingFlag});
+        moves.push({
+            static_cast<uint8_t>(4 + index), static_cast<uint8_t>(6 + index), PIECE::KING, side, Move::NONE, Move::NONE, shortCastlingFlag
+        });
     }
 }

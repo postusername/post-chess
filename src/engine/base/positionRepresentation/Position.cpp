@@ -21,8 +21,11 @@
 
 
 Position::Position() = default;
-Position::Position(const std::string& shortFen, uint8_t enPassant, bool wlCastling, bool wsCastling, bool blCastling, bool bsCastling, float moveCtr) {
-    this->pieces = {shortFen};
+
+
+Position::Position(const std::string &shortFen, uint8_t enPassant, bool wlCastling, bool wsCastling, bool blCastling,
+                   bool bsCastling, float moveCtr) {
+    this->pieces = Pieces(shortFen);
     this->enPassant = enPassant;
 
     this->wlCastling = wlCastling;
@@ -31,14 +34,18 @@ Position::Position(const std::string& shortFen, uint8_t enPassant, bool wlCastli
     this->bsCastling = bsCastling;
 
     this->moveCtr = moveCtr;
-    this->hash = {this->pieces, this->blackToMove(), this->wlCastling, this->wsCastling, this->blCastling, this->bsCastling};
+    this->hash = {
+        this->pieces, this->blackToMove(), this->wlCastling, this->wsCastling, this->blCastling, this->bsCastling
+    };
     this->repetitionHistory.addPosition(this->hash);
     this->fiftyMovesCtr = 0;
 }
-std::ostream &operator<<(std::ostream &ostream, const Position& position) {
+
+
+std::ostream &operator<<(std::ostream &ostream, const Position &position) {
     ostream << position.pieces << "\n";
 
-    ostream << "En passant: " << (uint32_t)position.enPassant << "\n";
+    ostream << "En passant: " << static_cast<uint32_t>(position.enPassant) << "\n";
     ostream << "White long castling: " << position.wlCastling << "\n";
     ostream << "White short castling: " << position.wsCastling << "\n";
     ostream << "Black long castling: " << position.blCastling << "\n";
@@ -51,6 +58,8 @@ std::ostream &operator<<(std::ostream &ostream, const Position& position) {
 
     return ostream;
 }
+
+
 void Position::move(Move move) {
     this->removePiece(move.getFrom(), move.getAttackerType(), move.getAttackerSide());
     this->addPiece(move.getTo(), move.getAttackerType(), move.getAttackerSide());
@@ -63,7 +72,8 @@ void Position::move(Move move) {
             this->changeEnPassant((move.getFrom() + move.getTo()) / 2);
             break;
         case Move::FLAG::EN_PASSANT_CAPTURE:
-            this->removePiece(move.getTo() - 8, PIECE::PAWN, (move.getAttackerSide() == SIDE::WHITE) ? SIDE::BLACK : SIDE::WHITE);
+            this->removePiece(move.getTo() - 8, PIECE::PAWN,
+                              (move.getAttackerSide() == SIDE::WHITE) ? SIDE::BLACK : SIDE::WHITE);
             break;
 
         case Move::FLAG::WL_CASTLING:
@@ -145,87 +155,126 @@ void Position::move(Move move) {
     }
     this->repetitionHistory.addPosition(this->hash);
 }
+
+
 Pieces Position::getPieces() const {
     return this->pieces;
 }
+
+
 uint8_t Position::getEnPassant() const {
     return this->enPassant;
 }
+
+
 bool Position::getWLCastling() const {
     return this->wlCastling;
 }
+
+
 bool Position::getWSCastling() const {
     return this->wsCastling;
 }
+
+
 bool Position::getBLCastling() const {
     return this->blCastling;
 }
+
+
 bool Position::getBSCastling() const {
     return this->bsCastling;
 }
+
+
 bool Position::whiteToMove() const {
     return !this->blackToMove();
 }
+
+
 bool Position::blackToMove() const {
     return (this->moveCtr - std::floor(this->moveCtr) > 1e-4);
 }
+
+
 ZobristHash Position::getHash() const {
     return this->hash;
 }
+
+
 bool Position::fiftyMovesRuleDraw() const {
     return (this->fiftyMovesCtr == 50);
 }
+
+
 bool Position::threefoldRepetitionDraw() const {
     return (this->repetitionHistory.getRepetitionNumber(this->hash) == 3);
 }
+
+
 void Position::addPiece(uint8_t square, uint8_t type, uint8_t side) {
     if (!BOp::getBit(this->pieces.getPieceBitboard(side, type), square)) {
         this->pieces.setPieceBitboard(side, type, BOp::set1(this->pieces.getPieceBitboard(side, type), square));
         this->hash.invertPiece(square, type, side);
     }
 }
+
+
 void Position::removePiece(uint8_t square, uint8_t type, uint8_t side) {
     if (BOp::getBit(this->pieces.getPieceBitboard(side, type), square)) {
         this->pieces.setPieceBitboard(side, type, BOp::set0(this->pieces.getPieceBitboard(side, type), square));
         this->hash.invertPiece(square, type, side);
     }
 }
+
+
 void Position::changeEnPassant(uint8_t en_passant) {
     this->enPassant = en_passant;
 }
+
+
 void Position::removeWLCastling() {
     if (this->wlCastling) {
         this->wlCastling = false;
         this->hash.invertWLCastling();
     }
 }
+
+
 void Position::removeWSCastling() {
     if (this->wsCastling) {
         this->wsCastling = false;
         this->hash.invertWSCastling();
     }
 }
+
+
 void Position::removeBLCastling() {
     if (this->blCastling) {
         this->blCastling = false;
         this->hash.invertBLCastling();
     }
 }
+
+
 void Position::removeBSCastling() {
     if (this->bsCastling) {
         this->bsCastling = false;
         this->hash.invertBSCastling();
     }
 }
+
+
 void Position::updateMoveCtr() {
     this->moveCtr = this->moveCtr + 0.5f;
     this->hash.invertMove();
 }
+
+
 void Position::updateFiftyMovesCtr(bool breakEvent) {
     if (breakEvent) {
         this->fiftyMovesCtr = 0;
-    }
-    else {
+    } else {
         this->fiftyMovesCtr = this->fiftyMovesCtr + 0.5f;
     }
 }
