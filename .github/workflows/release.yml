@@ -34,13 +34,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install packages
-        run: brew install make cmake sfml
+        run: brew install sfml
       - name: Build
         run: |
           mkdir -p build/osx/release
           cd build/osx/release
           cmake ../../../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -G "Unix Makefiles"
-          make
+          gmake
           mkdir bin-osx
           mv chess-cpp bin-osx/chess-cpp
           mv data bin-osx/data
