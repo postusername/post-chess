@@ -36,8 +36,7 @@ void TranspositionTable::addEntry(ZobristHash hash, int32_t depth, uint8_t bestM
     if (it == this->map.end()) {
         this->map[hash.getValue()] = std::make_pair(depth, bestMoveIndex);
     } else if (it->second.first < depth) {
-        this->map.erase(it);
-        this->map[hash.getValue()] = std::make_pair(depth, bestMoveIndex);
+        it->second = std::make_pair(depth, bestMoveIndex);
     }
 }
 

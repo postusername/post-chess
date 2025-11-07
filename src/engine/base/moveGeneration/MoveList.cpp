@@ -44,3 +44,13 @@ void MoveList::push(Move move) {
 uint8_t MoveList::getSize() const {
     return this->size;
 }
+
+
+Move* MoveList::begin() {
+    return this->moves.data();
+}
+
+
+Move* MoveList::end() {
+    return this->moves.data() + this->size;
+}
