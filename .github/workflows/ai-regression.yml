@@ -117,7 +117,8 @@ jobs:
           if not has_regression:
               print("✅ No significant regression detected")
           
-          # Exit with error code if regression detected
+          # Exit with error code if regression detected to fail the workflow
+          # This prevents merging PRs that introduce performance regressions
           sys.exit(1 if has_regression else 0)
           EOF
           else

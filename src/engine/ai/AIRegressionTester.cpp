@@ -64,8 +64,8 @@ void AIRegressionTester::runTests() {
     std::cout << "White wins: " << whiteWins << std::endl;
     std::cout << "Black wins: " << blackWins << std::endl;
     std::cout << "Draws: " << draws << std::endl;
-    std::cout << "Average moves per game: " << (totalMoves / numGames) << std::endl;
-    std::cout << "Average time per game: " << (totalTime / numGames) << "ms" << std::endl;
+    std::cout << "Average moves per game: " << (static_cast<double>(totalMoves) / numGames) << std::endl;
+    std::cout << "Average time per game: " << (static_cast<double>(totalTime) / numGames) << "ms" << std::endl;
 }
 
 

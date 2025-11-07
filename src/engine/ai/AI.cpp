@@ -41,7 +41,7 @@ Move AI::getBestMove(const Position &position, uint8_t side, int32_t ms) {
                 continueSearch = false;
                 break;
             }
-            std::this_thread::sleep_for(20ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
 
         if (continueSearch or i == 1) {
