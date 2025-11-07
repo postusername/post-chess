@@ -118,9 +118,9 @@ This will:
 
 Test parameters can be modified in `src/engine/ai/AIRegressionTester.cpp`:
 
-- `numGames`: Number of games to play (default: 3)
+- `numGames`: Number of games to play (default: 2)
 - `timePerMoveMs`: Time allocated per move in milliseconds (default: 500)
-- `maxMoves`: Maximum moves before declaring a draw (default: 100)
+- `maxMoves`: Maximum moves before declaring a draw (default: 40)
 
 ## Limitations
 
