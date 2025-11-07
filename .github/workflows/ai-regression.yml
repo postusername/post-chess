@@ -1,0 +1,171 @@
+name: AI Regression Testing
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  ai-regression-test:
+    name: AI Regression Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake make g++ libsfml-dev
+      
+      - name: Build chess engine
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          make
+      
+      - name: Run AI regression tests
+        run: |
+          cd build
+          ./chess-cpp --test-ai-regression
+      
+      - name: Upload current results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-regression-results-${{ github.sha }}
+          path: build/ai_regression_results.json
+          retention-days: 90
+      
+      - name: Download baseline results (if available)
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: ai-regression-baseline
+          path: baseline/
+      
+      - name: Compare with baseline
+        run: |
+          if [ -f baseline/ai_regression_results.json ]; then
+            echo "=== Comparing with baseline ==="
+            python3 - <<'EOF'
+          import json
+          import sys
+          
+          with open('build/ai_regression_results.json', 'r') as f:
+              current = json.load(f)
+          
+          with open('baseline/ai_regression_results.json', 'r') as f:
+              baseline = json.load(f)
+          
+          current_results = current['results']
+          baseline_results = baseline['results']
+          
+          # Calculate average moves for both
+          current_avg_moves = sum(r['moves'] for r in current_results) / len(current_results)
+          baseline_avg_moves = sum(r['moves'] for r in baseline_results) / len(baseline_results)
+          
+          # Calculate average time for both
+          current_avg_time = sum(r['totalTimeMs'] for r in current_results) / len(current_results)
+          baseline_avg_time = sum(r['totalTimeMs'] for r in baseline_results) / len(baseline_results)
+          
+          # Count results
+          def count_results(results):
+              white_wins = sum(1 for r in results if r['result'] == 'white')
+              black_wins = sum(1 for r in results if r['result'] == 'black')
+              draws = sum(1 for r in results if r['result'] == 'draw')
+              return white_wins, black_wins, draws
+          
+          current_white, current_black, current_draws = count_results(current_results)
+          baseline_white, baseline_black, baseline_draws = count_results(baseline_results)
+          
+          print(f"Current Results:")
+          print(f"  Games: {len(current_results)}")
+          print(f"  White wins: {current_white}, Black wins: {current_black}, Draws: {current_draws}")
+          print(f"  Average moves: {current_avg_moves:.1f}")
+          print(f"  Average time: {current_avg_time:.1f}ms")
+          print()
+          print(f"Baseline Results:")
+          print(f"  Games: {len(baseline_results)}")
+          print(f"  White wins: {baseline_white}, Black wins: {baseline_black}, Draws: {baseline_draws}")
+          print(f"  Average moves: {baseline_avg_moves:.1f}")
+          print(f"  Average time: {baseline_avg_time:.1f}ms")
+          print()
+          
+          # Check for significant regression (e.g., 50% increase in time or 30% decrease in average moves)
+          time_increase = (current_avg_time - baseline_avg_time) / baseline_avg_time * 100
+          moves_change = (current_avg_moves - baseline_avg_moves) / baseline_avg_moves * 100
+          
+          print(f"Changes from baseline:")
+          print(f"  Time: {time_increase:+.1f}%")
+          print(f"  Moves: {moves_change:+.1f}%")
+          print()
+          
+          has_regression = False
+          
+          if time_increase > 50:
+              print("⚠️ WARNING: AI performance regression detected - time increased by more than 50%")
+              has_regression = True
+          
+          if moves_change < -30:
+              print("⚠️ WARNING: AI strength regression detected - average game length decreased by more than 30%")
+              has_regression = True
+          
+          if not has_regression:
+              print("✅ No significant regression detected")
+          
+          # Exit with error code if regression detected
+          sys.exit(1 if has_regression else 0)
+          EOF
+          else
+            echo "No baseline found - this will become the baseline for future comparisons"
+            echo "To establish a baseline, manually download the artifact from this run and re-upload it as 'ai-regression-baseline'"
+          fi
+      
+      - name: Add comment to PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('build/ai_regression_results.json', 'utf8'));
+            
+            const games = results.results;
+            const whiteWins = games.filter(g => g.result === 'white').length;
+            const blackWins = games.filter(g => g.result === 'black').length;
+            const draws = games.filter(g => g.result === 'draw').length;
+            const avgMoves = games.reduce((sum, g) => sum + g.moves, 0) / games.length;
+            const avgTime = games.reduce((sum, g) => sum + g.totalTimeMs, 0) / games.length;
+            
+            let baselineInfo = '';
+            try {
+              const baseline = JSON.parse(fs.readFileSync('baseline/ai_regression_results.json', 'utf8'));
+              const baselineGames = baseline.results;
+              const baselineAvgMoves = baselineGames.reduce((sum, g) => sum + g.moves, 0) / baselineGames.length;
+              const baselineAvgTime = baselineGames.reduce((sum, g) => sum + g.totalTimeMs, 0) / baselineGames.length;
+              
+              const timeChange = ((avgTime - baselineAvgTime) / baselineAvgTime * 100).toFixed(1);
+              const movesChange = ((avgMoves - baselineAvgMoves) / baselineAvgMoves * 100).toFixed(1);
+              
+              baselineInfo = `\n### Comparison with Baseline\n` +
+                `- Time change: ${timeChange}%\n` +
+                `- Moves change: ${movesChange}%\n`;
+            } catch (e) {
+              baselineInfo = '\n_No baseline available for comparison_\n';
+            }
+            
+            const comment = `## AI Regression Test Results\n\n` +
+              `**Games played:** ${games.length}\n` +
+              `**Results:**\n` +
+              `- White wins: ${whiteWins}\n` +
+              `- Black wins: ${blackWins}\n` +
+              `- Draws: ${draws}\n\n` +
+              `**Performance:**\n` +
+              `- Average moves per game: ${avgMoves.toFixed(1)}\n` +
+              `- Average time per game: ${avgTime.toFixed(0)}ms\n` +
+              baselineInfo;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
