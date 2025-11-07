@@ -1,3 +1,0 @@
-/home/runner/work/post-chess/post-chess/_codeql_build_dir/CMakeFiles/chess-cpp.dir
-/home/runner/work/post-chess/post-chess/_codeql_build_dir/CMakeFiles/edit_cache.dir
-/home/runner/work/post-chess/post-chess/_codeql_build_dir/CMakeFiles/rebuild_cache.dir
