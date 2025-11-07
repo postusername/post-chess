@@ -157,7 +157,7 @@ void Position::move(Move move) {
 }
 
 
-Pieces Position::getPieces() const {
+const Pieces& Position::getPieces() const {
     return this->pieces;
 }
 

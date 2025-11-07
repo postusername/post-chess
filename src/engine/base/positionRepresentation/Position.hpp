@@ -37,7 +37,7 @@ public:
 
     void move(Move move);
 
-    [[nodiscard]] Pieces getPieces() const;
+    [[nodiscard]] const Pieces& getPieces() const;
 
     [[nodiscard]] uint8_t getEnPassant() const;
 
