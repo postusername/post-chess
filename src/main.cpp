@@ -21,14 +21,45 @@
 #define SHOW_UI true
 
 
+#include <iostream>
+#include <string>
+
 #if TEST_LEGAL_MOVE_GENERATOR
     #include "engine/base/moveGeneration/LegalMoveGenTester.hpp"
 #elif SHOW_UI
     #include "ui/UI.hpp"
 #endif
 
+#include "engine/base/moveGeneration/LegalMoveGenTester.hpp"
+#include "engine/ai/AIRegressionTester.hpp"
 
-int main() {
+
+int main(int argc, char* argv[]) {
+    // Check for command-line arguments
+    if (argc > 1) {
+        std::string arg = argv[1];
+        
+        if (arg == "--test-movegen") {
+            LegalMoveGenTester::runTests();
+            return 0;
+        } else if (arg == "--test-ai-regression") {
+            AIRegressionTester::runTests();
+            return 0;
+        } else if (arg == "--help") {
+            std::cout << "Usage: " << argv[0] << " [option]" << std::endl;
+            std::cout << "Options:" << std::endl;
+            std::cout << "  --test-movegen        Run move generation tests" << std::endl;
+            std::cout << "  --test-ai-regression  Run AI regression tests" << std::endl;
+            std::cout << "  --help                Show this help message" << std::endl;
+            std::cout << "  (no option)           Start the UI" << std::endl;
+            return 0;
+        } else {
+            std::cerr << "Unknown option: " << arg << std::endl;
+            std::cerr << "Use --help for available options" << std::endl;
+            return 1;
+        }
+    }
+
     #if TEST_LEGAL_MOVE_GENERATOR
         LegalMoveGenTester::runTests();
     #elif SHOW_UI
