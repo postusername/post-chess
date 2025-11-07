@@ -18,16 +18,13 @@
 
 
 #include "MoveSorter.hpp"
+#include <algorithm>
 
 
 MoveList MoveSorter::sort(const Pieces &pieces, MoveList moves) {
-    for (uint8_t i = 0; i < moves.getSize() - 1; i = i + 1) {
-        for (int j = 0; j < moves.getSize() - i - 1; j = j + 1) {
-            if (MoveSorter::evaluateMove(pieces, moves[j]) < MoveSorter::evaluateMove(pieces, moves[j + 1])) {
-                std::swap(moves[j], moves[j + 1]);
-            }
-        }
-    }
+    std::sort(moves.begin(), moves.end(), [&pieces](const Move& a, const Move& b) {
+        return MoveSorter::evaluateMove(pieces, a) > MoveSorter::evaluateMove(pieces, b);
+    });
     return moves;
 }
 

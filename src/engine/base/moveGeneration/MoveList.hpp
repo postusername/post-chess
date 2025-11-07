@@ -37,6 +37,14 @@ public:
 
     [[nodiscard]] uint8_t getSize() const;
 
+    Move* begin();
+    
+    Move* end();
+
+    const Move* begin() const;
+    
+    const Move* end() const;
+
 private:
     std::array<Move, 220> moves{};
     uint8_t size;
