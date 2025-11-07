@@ -54,3 +54,13 @@ Move* MoveList::begin() {
 Move* MoveList::end() {
     return this->moves.data() + this->size;
 }
+
+
+const Move* MoveList::begin() const {
+    return this->moves.data();
+}
+
+
+const Move* MoveList::end() const {
+    return this->moves.data() + this->size;
+}
