@@ -138,6 +138,11 @@ AIRegressionTester::GameResult AIRegressionTester::playGame(int32_t timePerMoveM
 void AIRegressionTester::saveResults(const std::vector<GameResult> &results, const std::string &filename) {
     std::ofstream file(filename);
     
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file " << filename << " for writing" << std::endl;
+        return;
+    }
+    
     file << "{" << std::endl;
     file << "  \"results\": [" << std::endl;
     
