@@ -18,6 +18,9 @@
 
 
 #include "AIRegressionTester.hpp"
+#include "../base/positionRepresentation/Position.hpp"
+#include "../base/moveGeneration/LegalMoveGen.hpp"
+#include "../base/moveGeneration/PsLegalMoveMaskGen.hpp"
 
 
 void AIRegressionTester::runTests() {

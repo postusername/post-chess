@@ -110,7 +110,7 @@ cd build
 ```
 
 This will:
-1. Run 3 self-play games
+1. Run 2 self-play games
 2. Save results to `ai_regression_results.json`
 3. Print a summary to the console
 
