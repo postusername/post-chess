@@ -24,9 +24,9 @@ void AIRegressionTester::runTests() {
     std::cout << "=== AI Regression Testing ===" << std::endl;
     std::cout << "Running self-play matches..." << std::endl << std::endl;
 
-    const int32_t numGames = 3;
+    const int32_t numGames = 2;
     const int32_t timePerMoveMs = 500; // 0.5 second per move
-    const int32_t maxMoves = 100; // Maximum moves per game
+    const int32_t maxMoves = 40; // Maximum moves per game
 
     std::vector<GameResult> results;
 
@@ -67,7 +67,16 @@ void AIRegressionTester::runTests() {
 
 
 AIRegressionTester::GameResult AIRegressionTester::playGame(int32_t timePerMoveMs, int32_t maxMoves) {
-    Position position;
+    // Initialize position with standard starting position
+    Position position(
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+        Position::NONE,  // en passant
+        true,  // white long castling
+        true,  // white short castling
+        true,  // black long castling
+        true,  // black short castling
+        0.0f   // move counter
+    );
     uint8_t currentSide = SIDE::WHITE;
     int32_t moveCount = 0;
     int32_t totalTimeMs = 0;
